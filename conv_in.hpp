@@ -34,6 +34,8 @@ class conv_in:
 
     void spin()
     {
+      char next_box[2] = "a";
+      next_box[0] = ((rand() < (RAND_MAX / 4 ))?'x':'_');
       switch(st_)
       {
         case ABORTING:
@@ -60,14 +62,32 @@ class conv_in:
         case COMPLETING:
           st_ = COMPLETE;
           break;
+        case SUSPENDED:
+          if(next_box[0] == 'x')
+          {
+            conveyor.insert(0, next_box);
+            conveyor.resize(conv_size_);
+            this->sendCommand(UNSUSPEND);
+          }
+          break;
         case EXECUTE:
           if(conveyor[conveyor.length()-1] == 'x')
             out_box_ = true;
           else
             out_box_ = false;
-          conveyor.insert(0, ((rand() < (RAND_MAX / 4 ))?"x":"_"));
+          conveyor.insert(0, next_box);
           conveyor.resize(conv_size_);
-
+          bool theres_something = false;
+          for( int pos=0; pos < conveyor.length(); ++pos)
+          {
+            if(conveyor[pos]=='x')
+            {
+              theres_something = true;
+              break;
+            }
+          }
+          if(!theres_something)
+            this->sendCommand(SUSPEND);            
           break;
       }
     };
