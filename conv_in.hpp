@@ -19,7 +19,7 @@ class conv_in:
     {
       conv_size_ = _conv_size;
       conveyor.resize(conv_size_);
-      memset(&conveyor[0], '_', conv_size_);
+      memset(&conveyor[0], '_', conv_size_-1);
       conveyor[conv_size_] = '\0';
       st_ = _st;
       out_box_ = false;
@@ -32,10 +32,8 @@ class conv_in:
     };
     bool out_box() {return out_box_;};
 
-    void spin()
+    void spin( char next_box = '_')
     {
-      char next_box[2] = "a";
-      next_box[0] = ((rand() < (RAND_MAX / 4 ))?'x':'_');
       switch(st_)
       {
         case ABORTING:
@@ -63,9 +61,9 @@ class conv_in:
           st_ = COMPLETE;
           break;
         case SUSPENDED:
-          if(next_box[0] == 'x')
+          if(next_box == 'x')
           {
-            conveyor.insert(0, next_box);
+            conveyor.insert(0, "x");
             conveyor.resize(conv_size_);
             this->sendCommand(UNSUSPEND);
           }
@@ -75,7 +73,8 @@ class conv_in:
             out_box_ = true;
           else
             out_box_ = false;
-          conveyor.insert(0, next_box);
+          conveyor.insert(0, "_");
+          conveyor[0] = next_box;
           conveyor.resize(conv_size_);
           bool theres_something = false;
           for( int pos=0; pos < conveyor.length(); ++pos)
