@@ -53,7 +53,7 @@ class pal_mo:
       int curr_row = curr_pos_ / pal_cols_;
       pallet[curr_row*(pal_cols_+1) + curr_pos_ % pal_cols_] = next_box;
       ++curr_pos_;
-      if(curr_pos_ > pal_cols_*pal_rows_)
+      if(curr_pos_ >= pal_cols_*pal_rows_)
       {
         out_pal_ = true;
         for(int i=0; i<pal_rows_; ++i)
@@ -80,7 +80,6 @@ class pal_mo:
           st_ = IDLE;
           break;
         case STARTING:
-        case UNSUSPENDING:
         case UNHOLDING:
           st_ = EXECUTE;
           break;
@@ -93,13 +92,16 @@ class pal_mo:
         case COMPLETING:
           st_ = COMPLETE;
           break;
+        case UNSUSPENDING:
+          add_box(next_box[0]);
+          add_box(next_box[1]);
+          st_ = EXECUTE;
+          break;
         case SUSPENDED:
           if(next_box[0] == 'x' || next_box[1] == 'x')
           {
             add_box(next_box[0]);
             add_box(next_box[1]);
-            if(curr_pos_ == pal_cols_ * pal_rows_)
-              out_pal_ = true;
             this->sendCommand(UNSUSPEND);
           }
           break;
